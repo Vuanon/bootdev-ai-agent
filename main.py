@@ -5,21 +5,29 @@ from openai import OpenAI, responses
 import argparse
 from typing import Any
 
+from openai.types.chat import ChatCompletion
+
 def main():
-    messages = parse_cli_arguments()
+    args = parse_cli_arguments()
+    messages = get_message_from_args(args)
     openai_client = get_client()
     response = generate_content(client=openai_client, messages=messages)
+    if args.verbose:
+        print_metadata(args=args, response=response)
     print(response.choices[0].message.content)
 
 
-def parse_cli_arguments() -> list[dict[str, Any]]:
+def parse_cli_arguments():
     """
     Parses arguments from cli to be sent as messages to the LLM.
     """
     parser = argparse.ArgumentParser(description="Chatbot")
     parser.add_argument("user_prompt", type=str, help="User prompt")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
+    return args
 
+def get_message_from_args(args: argparse.Namespace) -> list[dict[str, Any]]:
     messages = [
         { "role": "user",
             "content": args.user_prompt,
@@ -44,7 +52,7 @@ def get_client() -> OpenAI:
     return client
 
 
-def generate_content(client: OpenAI, messages: list[dict[str, Any]]) -> Any:
+def generate_content(client: OpenAI, messages: list[dict[str, Any]]) -> ChatCompletion:
     """
     Calls the openrouter api to generate a response.
     """
@@ -52,11 +60,14 @@ def generate_content(client: OpenAI, messages: list[dict[str, Any]]) -> Any:
         model="openrouter/free",
         messages=messages, #type: ignore
     )
+    return response
+
+
+def print_metadata(args, response: ChatCompletion):
+    print(f"User prompt: {args.user_prompt}")
     if response.usage is not None:
         print(f"Prompt tokens: {response.usage.prompt_tokens}")
         print(f"Response tokens: {response.usage.completion_tokens}")
-    return response
-
 
 if __name__ == "__main__":
     main()
