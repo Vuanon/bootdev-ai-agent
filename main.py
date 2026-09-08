@@ -15,18 +15,23 @@ def main():
     args = parse_cli_arguments()
     messages = get_message_from_args(args)
     openai_client = get_client()
-    response = generate_content(client=openai_client, messages=messages)
-    if args.verbose:
-        print_metadata(args=args, response=response)
-    message = response.choices[0].message
-    if message.tool_calls is None:
-        print(message.content)
-        return
-    for tool_call in message.tool_calls:
-        function_args = json.loads(tool_call.function.arguments or "{}") #type: ignore
-        res = call_function(tool_call, args.verbose)
+    for _ in range(20):
+        response = generate_content(client=openai_client, messages=messages)
         if args.verbose:
-            print(f"-> {res['content']}")
+            print_metadata(args=args, response=response)
+        message = response.choices[0].message
+        messages.append(message) #type: ignore
+        if message.tool_calls is None:
+            print(message.content)
+            return
+        for tool_call in message.tool_calls:
+            function_args = json.loads(tool_call.function.arguments or "{}") #type: ignore
+            res = call_function(tool_call, args.verbose)
+            messages.append(res)
+            if args.verbose:
+                print(f"-> {res['content']}")
+    print("Max number of iterations reached and the model has not produced a final response")
+    exit(1)
 
 
 def parse_cli_arguments():
