@@ -18,13 +18,14 @@ def get_file_content(working_directory: str, file_path: str) -> str:
     except Exception as e:
         return f'Error: {e}'
 
-schema_get_files_content = {
+schema_get_file_content = {
     "type": "function",
     "function": {
         "name": "get_file_content",
         "description": "Gets content of a file in a specified directory relative to the working directory. Will return up to 10,000 characters of the file, and will specify if output is truncated.",
         "parameters": {
             "type": "object",
+            "required": ["file_path"],
             "properties": {
                 "file_path": {
                     "type": "string",

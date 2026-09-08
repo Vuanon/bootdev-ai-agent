@@ -24,6 +24,7 @@ schema_write_file = {
         "description": "Writes/overwrites to a file in a specified directory relative to the working directory.",
         "parameters": {
             "type": "object",
+            "required": ["file_path", "content"],
             "properties": {
                 "file_path": {
                     "type": "string",

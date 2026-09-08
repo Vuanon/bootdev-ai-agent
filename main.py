@@ -9,7 +9,7 @@ from typing import Any
 from openai.types.chat import ChatCompletion
 
 from prompts import system_prompt
-from call_function import available_functions
+from call_function import available_functions, call_function
 
 def main():
     args = parse_cli_arguments()
@@ -24,7 +24,9 @@ def main():
         return
     for tool_call in message.tool_calls:
         function_args = json.loads(tool_call.function.arguments or "{}") #type: ignore
-        print(f"Calling function: {tool_call.function.name}({function_args})") #type: ignore
+        res = call_function(tool_call, args.verbose)
+        if args.verbose:
+            print(f"-> {res['content']}")
 
 
 def parse_cli_arguments():

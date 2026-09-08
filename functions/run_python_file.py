@@ -42,9 +42,10 @@ schema_run_python_file = {
     "type": "function",
     "function": {
         "name": "run_python_file",
-        "description": "Writes/overwrites to a file in a specified directory relative to the working directory.",
+        "description": "Run or execute a specified Python file within the working directory and returns its output.",
         "parameters": {
             "type": "object",
+            "required": ["file_path"],
             "properties": {
                 "file_path": {
                     "type": "string",
@@ -52,7 +53,7 @@ schema_run_python_file = {
                 },
                 "args": {
                     "type": "list of strings",
-                    "description": "Optional list of arguments to pass the command. (default is None)",
+                    "description": "Optional list of arguments to pass the Python script. (default is None)",
                 },
             },
         },
