@@ -1,11 +1,15 @@
 from inspect import getclasstree
 import os
+import json
 from dotenv import load_dotenv
 from openai import OpenAI, responses
 import argparse
 from typing import Any
 
 from openai.types.chat import ChatCompletion
+
+from prompts import system_prompt
+from call_function import available_functions
 
 def main():
     args = parse_cli_arguments()
@@ -14,7 +18,13 @@ def main():
     response = generate_content(client=openai_client, messages=messages)
     if args.verbose:
         print_metadata(args=args, response=response)
-    print(response.choices[0].message.content)
+    message = response.choices[0].message
+    if message.tool_calls is None:
+        print(message.content)
+        return
+    for tool_call in message.tool_calls:
+        function_args = json.loads(tool_call.function.arguments or "{}") #type: ignore
+        print(f"Calling function: {tool_call.function.name}({function_args})") #type: ignore
 
 
 def parse_cli_arguments():
@@ -29,6 +39,9 @@ def parse_cli_arguments():
 
 def get_message_from_args(args: argparse.Namespace) -> list[dict[str, Any]]:
     messages = [
+        { "role": "system",
+            "content": system_prompt,
+        },
         { "role": "user",
             "content": args.user_prompt,
         },
@@ -59,6 +72,7 @@ def generate_content(client: OpenAI, messages: list[dict[str, Any]]) -> ChatComp
     response = client.chat.completions.create(
         model="openrouter/free",
         messages=messages, #type: ignore
+        tools=available_functions, #type: ignore
     )
     return response
 

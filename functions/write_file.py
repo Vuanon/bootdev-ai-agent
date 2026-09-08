@@ -15,3 +15,25 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
         return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
     except Exception as e:
         return f'Error: {e}'
+
+
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Writes/overwrites to a file in a specified directory relative to the working directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path of file to write to, relative to the working directory",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to write to the file at file_path",
+                },
+            },
+        },
+    },
+}
