@@ -1,0 +1,3 @@
+OPENROUTER_API_KEY='your-api-key'
+WORKING_DIRECTORY='./calculator'
+

@@ -1,7 +1,9 @@
 import json
 from collections.abc import Callable
+import os
 
-from openai.types.chat import ChatCompletionMessageToolCall, ChatCompletionMessageToolCallUnion
+from dotenv import load_dotenv
+from openai.types.chat import ChatCompletionMessageToolCallUnion
 
 from functions.get_files_info import schema_get_files_info, get_files_info
 from functions.get_file_content import schema_get_file_content, get_file_content
@@ -37,7 +39,8 @@ def call_function(tool_call: ChatCompletionMessageToolCallUnion, verbose: bool =
             "content": f"Error: Unknown function: {function_name}",
         }
 
-    function_args["working_directory"] = "./calculator"
+    load_dotenv()
+    function_args["working_directory"] = os.environ.get("WORKING_DIRECTORY")
     res = function_map[function_name](**function_args)
     return {
         "role": "tool",
